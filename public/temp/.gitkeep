@@ -1,0 +1,29 @@
+# Create project directories that need to exist
+mkdir -p logs
+mkdir -p uploads/temp
+mkdir -p build/assets
+mkdir -p cache/sessions
+
+# Add .gitkeep files to track empty directories
+touch logs/.gitkeep
+touch uploads/.gitkeep
+touch uploads/temp/.gitkeep
+touch build/.gitkeep
+touch build/assets/.gitkeep
+touch cache/.gitkeep
+touch cache/sessions/.gitkeep
+
+# Add .gitkeep files to Git
+git add logs/.gitkeep
+git add uploads/.gitkeep
+git add uploads/temp/.gitkeep
+git add build/.gitkeep
+git add build/assets/.gitkeep
+git add cache/.gitkeep
+git add cache/sessions/.gitkeep
+
+# Commit the directory structure
+git commit -m "Add .gitkeep files to maintain directory structure"
+
+# Verify directories are tracked
+git ls-files | grep .gitkeep
