@@ -2,6 +2,7 @@ import { ApiError } from "../utils/apiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { ApiResponse } from "../utils/apiResponse.js";
 
 const registerUser = asyncHandler(async (req, res) => {
   // upload to cloudinary and check that there is no problem
@@ -38,16 +39,27 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Avatar is required");
   }
 
-  User.create({
+  const user = await User.create({
     fullname,
     avatar: avatar.url,
-    coverImage: coverImage?.url || '',
+    coverImage: coverImage?.url || "",
     email,
     password,
-    username : username.toLowerCase()
-    
-
+    username: username.toLowerCase(),
   });
+  console.log(user);
+
+  const createdUser = await user
+    .findById(user._id)
+    .select("-password -refreshToken");
+
+  if (!createdUser) {
+    console.log("user is not created");
+    throw new ApiError(500, "user in not created by server");
+  }
+  console.log(user);
+
+  return res.status(200).json(new ApiResponse(201, createdUser,"user registered successfully"));
 });
 
 export { registerUser };
