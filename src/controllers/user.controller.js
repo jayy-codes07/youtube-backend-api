@@ -5,19 +5,20 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 
 const registerUser = asyncHandler(async (req, res) => {
-  // upload to cloudinary and check that there is no problem
   // create user object
   // in response remove password and refresh token
   // check that user is created or not
   //if yes then return response
 
   // get user details from frontend
+
+  //  get data from body
+  const { fullname, email, username, password } = await req.body;
   // validate that if not empty
-  const { fullname, email, username, password } = req.body;
   if ([fullname, email, username, password].some((field) => !field?.trim())) {
     throw new ApiError(400, "All fields are required");
   }
-  console.log("file has those data =>", req.files);
+
   // check if already exist or not :- username,email
   const existedUser = await User.findOne({
     $or: [{ username }, { email }],
@@ -25,20 +26,32 @@ const registerUser = asyncHandler(async (req, res) => {
   if (existedUser) {
     throw new ApiError(409, "this email or username is in already use");
   }
-  // check for avatar and image
-  const avatarlocalpath = req.files?.avatar?.[0]?.path;
-  const coverImagelocalpath = req.files?.coverImage?.[0]?.path;
 
+  // check for avatar and coverImage
+  const avatarlocalpath = await req.files?.avatar?.[0]?.path;
+  let coverImagelocalpath;
+  if (
+    req.files &&
+    Array.isArray(req.files.coverImage) &&
+    req.files.coverImage.length > 0
+  ) {
+    coverImagelocalpath = req.files.coverImage[0].path;
+  }
+
+  // if there is no avatar we will sent error
   if (!avatarlocalpath) {
     throw new ApiError(400, "Avatar is required");
   }
+
+  // upload it to Cloudinary
   const avatar = await uploadOnCloudinary(avatarlocalpath);
   const coverImage = await uploadOnCloudinary(coverImagelocalpath);
 
-  if (avatar) {
+  // check that avatar is sent to Cloudinary or not
+  if (!avatar) {
     throw new ApiError(400, "Avatar is required");
   }
-
+  // insert user into database
   const user = await User.create({
     fullname,
     avatar: avatar.url,
@@ -47,19 +60,21 @@ const registerUser = asyncHandler(async (req, res) => {
     password,
     username: username.toLowerCase(),
   });
+  // remove password and refresh token
+  const createdUser = await User.findById(user._id).select(
+    "-password -refreshToken"
+  );
   console.log(user);
 
-  const createdUser = await user
-    .findById(user._id)
-    .select("-password -refreshToken");
-
+  // check that user is created or not
   if (!createdUser) {
     console.log("user is not created");
     throw new ApiError(500, "user in not created by server");
   }
-  console.log(user);
 
-  return res.status(200).json(new ApiResponse(201, createdUser,"user registered successfully"));
+  return res
+    .status(200)
+    .json(new ApiResponse(201, createdUser, "user registered successfully"));
 });
 
 export { registerUser };
