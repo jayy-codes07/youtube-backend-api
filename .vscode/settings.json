@@ -3,6 +3,7 @@
         "avatarlocalpath",
         "avtarlocalpath",
         "connectioninstance",
-        "Imagelocalpath"
+        "Imagelocalpath",
+        "refereshtoken"
     ]
 }
