@@ -45,7 +45,6 @@ const publishAVideo = asyncHandler(async (req, res) => {
   return res
     .status(201)
     .json(new ApiResponse(201, video, "video published successfully"));
-
 });
 
 const getVideoById = asyncHandler(async (req, res) => {
@@ -55,20 +54,53 @@ const getVideoById = asyncHandler(async (req, res) => {
     throw new ApiError(400, "VideoID is required");
   }
 
-  const video = await Video.findByID(videoId)
+  const video = await Video.findByID(videoId);
 
   if (!video) {
     throw new ApiError(400, "there is no such video exist in DB");
   }
 
-  res.status(200).json(new ApiResponse(200, video, "here is video sent"))
-
+  res.status(200).json(new ApiResponse(200, video, "here is video sent"));
 });
 
 const updateVideo = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
-  const { title, description } = req.body
+  const { title, description } = req.body;
+  const thumbnailLocalPath = req.files?.thumbnail?.[0]?.path;
 
+  if (!videoId?.trim()) {
+    throw new ApiError(400, "Video ID is required");
+  }
+  if (!title?.trim() && !description?.trim() && !thumbnailLocalPath?.trim()) {
+    throw new ApiError(
+      400,
+      "enter title and description and thumbnail properly"
+    );
+  }
+
+  const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
+
+  if (!thumbnail) {
+    throw new ApiError(500, "problem in uploading thumbnail to cloudinary ");
+  }
+
+  const video = await Video.findByIDAndUpdate(videoId)(
+    {
+      title: title.trim(),
+      description: description.trim(),
+      thumbnail: thumbnail.url,
+    },
+    { new: true }
+  );
+
+  if (!video) {
+    throw new ApiError(500, "problem in uploading to database");
+  }
+  console.log(video);
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, video, "video details updated successfully"));
   //TODO: update video details like title, description, thumbnail
 });
 
