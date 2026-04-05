@@ -115,7 +115,7 @@ const deleteVideo = asyncHandler(async (req, res) => {
   if (!videoId) {
     throw new ApiError(400, "VideoID is required")
   }
-  const video =await Video.findById(videoId)
+  const video = await Video.findById(videoId)
   if (!video) {
     throw new ApiError(400, "this video does not exist in database");
   }
@@ -123,22 +123,42 @@ const deleteVideo = asyncHandler(async (req, res) => {
   const CloudinaryVideoFile = video.videoFile
 
   if (CloudinaryThumbnail) {
-    await deleteOnCloudinary(CloudinaryThumbnail,"image")
+    await deleteOnCloudinary(CloudinaryThumbnail, "image")
   }
 
   if (CloudinaryVideoFile) {
-    await deleteOnCloudinary(CloudinaryVideoFile,"video")
+    await deleteOnCloudinary(CloudinaryVideoFile, "video")
   }
 
 
 
- await Video.findByIdAndDelete(videoId)
+  await Video.findByIdAndDelete(videoId)
 
   res.status(200).json(new ApiResponse(200, video, "video deleted SuccessFully"))
 });
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
+  if (!videoId?.trim()) {
+    throw new ApiError(400, "videoId is required")
+  }
+  // const video = await Video.findByIdAndUpdate(videoId, $set : { isPublished: isPublished }, { new: true })
+  const video = await Video.findById(videoId)
+
+  if (!video) {
+    throw new ApiError(400, "there is no such video in database")
+  }
+  let videoPublished = video.isPublished
+  if (videoPublished) {
+    videoPublished = false
+  } else {
+    videoPublished = true
+  }
+
+  const UpdatedVideo = await Video.findByIdAndUpdate(videoId,{ $set : { isPublished: videoPublished }}, { new: true })
+
+
+  res.status(200).json(new ApiResponse(200, UpdatedVideo, "changed in video publishen"))
 });
 
 export {
