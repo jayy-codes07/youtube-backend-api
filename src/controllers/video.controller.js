@@ -77,18 +77,23 @@ const updateVideo = asyncHandler(async (req, res) => {
       "enter title and description and thumbnail properly"
     );
   }
-
-  const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
-
-  if (!thumbnail) {
+  let thumbnail = null;
+  if (thumbnailLocalPath) {
+    thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
+     if (!thumbnail) {
     throw new ApiError(500, "problem in uploading thumbnail to cloudinary ");
   }
+  }
 
-  const video = await Video.findByIDAndUpdate(videoId)(
+ 
+
+  const video = await Video.findByIdAndUpdate(videoId,
     {
-      title: title.trim(),
-      description: description.trim(),
-      thumbnail: thumbnail.url,
+      $set: {
+        title: title,
+        description: description,
+        thumbnail: thumbnail?.url,
+      }
     },
     { new: true }
   );
