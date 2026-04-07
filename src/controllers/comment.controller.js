@@ -60,7 +60,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
 
 
     if (!allcomments.length) {
-        throw new ApiError(200, "there is no comment ")
+        throw new ApiError(200, "there is no com")
     }
 
     return res
