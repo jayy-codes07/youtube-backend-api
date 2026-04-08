@@ -11,7 +11,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10 } = req.query
 
     if (!videoId) {
-        throw new ApiError(400, "please provid videoID")
+        throw new ApiError(400, "please provide videoID")
     }
 
     const existvideo = await Video.exists({ _id: videoId })
@@ -75,7 +75,7 @@ const addComment = asyncHandler(async (req, res) => {
     const { content } = req.body
 
     if (!videoId) {
-        throw new ApiError(400, "provid video id");
+        throw new ApiError(400, "provide video id");
 
     }
 
