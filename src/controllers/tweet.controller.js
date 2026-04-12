@@ -23,8 +23,6 @@ const createTweet = asyncHandler(async (req, res) => {
 
 })
 
-
-
 const getUserTweets = asyncHandler(async (req, res) => {
     const { userId } = req.params;
     // TODO: get user tweets
