@@ -38,4 +38,4 @@ app.use("/api/v1/playlists", playlistRouter);
 app.use("/api/v1/subscriptions", subscriptionRouter);
 app.use("/api/v1/dashboard", dashboardRouter);
 
-export { app };
+const app = express()
