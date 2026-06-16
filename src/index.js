@@ -2,7 +2,7 @@
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import connectDB from "./db/db.js";
-import { app } from "./app.js";
+import app from "./app.js";
 
 dotenv.config({ path: "./.env" });
 console.log("ENV:", process.env.MONGO_URL);
